@@ -14,6 +14,9 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        if let itemms = UserDefaults.standard.value(forKey: "itemArray") as? [String] {
+            itemArray = itemms
+        }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -51,6 +54,7 @@ class TodoListViewController: UITableViewController {
             //after add
             if textField.text != nil {
                 self.itemArray.append(textField.text! )
+                UserDefaults.standard.set(self.itemArray, forKey: "itemArray")
                
             }
             DispatchQueue.main.async {
