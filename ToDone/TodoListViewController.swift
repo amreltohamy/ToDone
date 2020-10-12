@@ -9,13 +9,14 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
     
-    var itemArray = ["kil bill","visit ahmed","add frind","hello"]
+ 
+    var itemArray = [Item]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        if let itemms = UserDefaults.standard.value(forKey: "itemArray") as? [String] {
-            itemArray = itemms
+
+        if let items = UserDefaults.standard.array(forKey: "itemArray") as? [Item] {
+            itemArray = items
         }
     }
 
@@ -25,19 +26,16 @@ class TodoListViewController: UITableViewController {
     
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let item = itemArray[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row]
+        cell.textLabel?.text = item.title
+        cell.accessoryType = item.done ? .checkmark : .none
         return cell
     }
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       if tableView.cellForRow(at: indexPath)?.accessoryType
-            == .checkmark {
-        tableView.cellForRow(at: indexPath)?.accessoryType
-            = .none
-       }else{
-        tableView.cellForRow(at: indexPath)?.accessoryType
-            = .checkmark
-       }
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -53,8 +51,11 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //after add
             if textField.text != nil {
-                self.itemArray.append(textField.text! )
-                UserDefaults.standard.set(self.itemArray, forKey: "itemArray")
+                let newItem = Item()
+                newItem.title = textField.text!
+                self.itemArray.append(newItem)
+                UserDefaults.standard.setValue(self.itemArray, forKey: "itemArray")
+              //  UserDefaults.standard.set(self.itemArray, forKey: "itemArray")
                
             }
             DispatchQueue.main.async {
