@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,6 +16,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+       
+      // test of saving persistance data
+//        let data = Categories()
+//        data.name = "Amr"
+//       
+        do{
+            _ = try Realm()
+           
+        }catch{
+            print(error.localizedDescription)
+        }
+ //      print(Realm.Configuration.defaultConfiguration.fileURL)
+        
         return true
     }
     // MARK: UISceneSession Lifecycle

@@ -6,15 +6,24 @@
 //
 
 import UIKit
-import CoreData
+//import CoreData
+import RealmSwift
 
 class CategoryTableViewController: UITableViewController {
-    let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext
-    var catagoryArray = [Categories]()
+    
+    
+    
+  //  let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext
 
+    let realm = try? Realm()
+  
+
+    
+    var catagoryArray : Results<Categories>?
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadCategories()
+        loadRealmData()
+      //  loadCategories()
     }
     
     
@@ -26,7 +35,7 @@ class CategoryTableViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as! TodoListViewController
         if let indexpath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = catagoryArray[indexpath.row]
+            destinationVC.selectedCategory = catagoryArray?[indexpath.row]
         }else{
             print("error gitting to indexpath fo selected row")
         }
@@ -34,21 +43,32 @@ class CategoryTableViewController: UITableViewController {
     
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return catagoryArray.count
+        return catagoryArray?.count ?? 1
     }
     
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        cell.textLabel?.text = catagoryArray[indexPath.row].name
+        cell.textLabel?.text = catagoryArray?[indexPath.row].name ?? "Empty"
         return cell
     }
     
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-                context?.delete(catagoryArray[indexPath.row])
-        catagoryArray.remove(at: indexPath.row)
-        saveCategory()
+        if let cat = catagoryArray?[indexPath.row] {
+            do{
+                try realm?.write{
+                    realm?.delete(cat)
+                }
+            }catch{
+                print(error.localizedDescription)
+            }
+           
+        }
+        tableView.reloadData()
+             //   context?.delete(catagoryArray[indexPath.row])
+    //     catagoryArray.remove(at: indexPath.row)
+       // saveCategory()
     }
 
 
@@ -62,10 +82,13 @@ class CategoryTableViewController: UITableViewController {
              
         }
         let alertAction = UIAlertAction(title: "ADD", style: .default) { (action) in
-            let newCategory = Categories(context: self.context!)
-            newCategory.name = textField.text
-            self.catagoryArray.append(newCategory)
-            self.saveCategory()
+            
+            
+            let newCategory = Categories()
+            newCategory.name = textField.text!
+         //   self.catagoryArray.append(newCategory)
+            self.saveRealmCategory(category: newCategory)
+         //   self.saveCategory()
         }
         alertController.addAction(UIAlertAction(title: "Cancel", style: .destructive, handler: nil))
         alertController.addAction(alertAction)
@@ -74,28 +97,83 @@ class CategoryTableViewController: UITableViewController {
     }
     
     
-    
-    func saveCategory() {
+    func saveRealmCategory(category:Categories)  {
         do {
-            try context?.save()
-            
+            try realm?.write(){
+                realm?.add(category)
+            }
         } catch  {
+            print("error")
             print(error.localizedDescription)
         }
         tableView.reloadData()
     }
     
-    
-    
-    func loadCategories(with request:NSFetchRequest<Categories>  = Categories.fetchRequest()){
-        do {
-            catagoryArray = try context!.fetch(request)
-            tableView.reloadData()
-
-        }catch{
-            print(error.localizedDescription)
-        }
+    func loadRealmData(){
+        catagoryArray = realm?.objects(Categories.self)
+        tableView.reloadData()
+        
     }
+    
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+//    func saveCategory() {
+//        do {
+//            try context?.save()
+//
+//        } catch  {
+//            print(error.localizedDescription)
+//        }
+//        tableView.reloadData()
+//    }
+//
+    
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+//    func loadCategories(with request:NSFetchRequest<Categories>  = Categories.fetchRequest()){
+//        do {
+//            catagoryArray = try context!.fetch(request)
+//            tableView.reloadData()
+//
+//        }catch{
+//            print(error.localizedDescription)
+//        }
+//    }
     
 }
     
