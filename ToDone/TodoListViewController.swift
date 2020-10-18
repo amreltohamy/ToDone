@@ -31,11 +31,16 @@ class TodoListViewController: UITableViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        guard let nav = navigationController?.navigationBar else {
-            fatalError("navigation controller doesnot exist")
-            return
+        if let colour = UIColor(hexString: selectedCategory!.color) {
+            guard let nav = navigationController?.navigationBar else {
+                fatalError("navigation controller doesnot exist")
+            }
+            title = selectedCategory?.name
+            nav.barTintColor = colour
+            searchbar.barTintColor = colour.lighten(byPercentage: 0.5)
+
         }
-        nav.barTintColor = UIColor(hexString: selectedCategory!.color)
+       
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
