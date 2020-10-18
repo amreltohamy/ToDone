@@ -8,7 +8,8 @@
 import UIKit
 //import CoreData
  import RealmSwift
-
+import ChameleonFramework
+ 
 class TodoListViewController: UITableViewController {
     
  
@@ -25,6 +26,16 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         searchbar.delegate = self
+        tableView.separatorStyle = .none
+       
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        guard let nav = navigationController?.navigationBar else {
+            fatalError("navigation controller doesnot exist")
+            return
+        }
+        nav.barTintColor = UIColor(hexString: selectedCategory!.color)
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -37,6 +48,11 @@ class TodoListViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = item?.title ?? "empty"
         cell.accessoryType = item?.done ?? false ? .checkmark : .none
+        if let color = UIColor(hexString: selectedCategory!.color)?.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(itemArray!.count)) {
+            cell.backgroundColor = color
+            cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+        }
+        
         return cell
     }
     
@@ -102,6 +118,7 @@ class TodoListViewController: UITableViewController {
                             newItem.title = textField.text!
                             newItem.done = false
                             newItem.dateCreated = Date()
+                            newItem.color = UIColor.randomFlat().hexValue()
                             currentCategory.items.append(newItem)
                            
                         }

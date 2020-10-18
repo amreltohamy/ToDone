@@ -7,22 +7,25 @@
 
 import UIKit
 //import CoreData
-import RealmSwift
+import RealmSwift 
+import ChameleonFramework
 
 class CategoryTableViewController: UITableViewController {
+  
+    
     
     
     
   //  let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext
 
     let realm = try? Realm()
-  
-
     
     var catagoryArray : Results<Categories>?
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.rowHeight = 70
         loadRealmData()
+        tableView.separatorStyle = .none
       //  loadCategories()
     }
     
@@ -46,10 +49,19 @@ class CategoryTableViewController: UITableViewController {
         return catagoryArray?.count ?? 1
     }
     
-    
+//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! SwipeTableViewCell
+//        cell.delegate = self
+//        return cell
+//    }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        
         cell.textLabel?.text = catagoryArray?[indexPath.row].name ?? "Empty"
+       let color = UIColor(hexString: (catagoryArray?[indexPath.row].color)!)
+        cell.backgroundColor = color
+        cell.textLabel?.textColor = ContrastColorOf(color ?? .black, returnFlat: true)
         return cell
     }
     
@@ -63,7 +75,7 @@ class CategoryTableViewController: UITableViewController {
             }catch{
                 print(error.localizedDescription)
             }
-           
+
         }
         tableView.reloadData()
              //   context?.delete(catagoryArray[indexPath.row])
@@ -77,7 +89,7 @@ class CategoryTableViewController: UITableViewController {
         let alertController = UIAlertController(title: "Add Category", message: "add new category", preferredStyle: .alert)
         
         alertController.addTextField { (alertTextField) in
-            alertTextField.placeholder = "crete new cat"
+            alertTextField.placeholder = "create new cat"
             textField = alertTextField
              
         }
@@ -86,9 +98,12 @@ class CategoryTableViewController: UITableViewController {
             
             let newCategory = Categories()
             newCategory.name = textField.text!
-         //   self.catagoryArray.append(newCategory)
+            newCategory.color = UIColor.randomFlat().hexValue()
             self.saveRealmCategory(category: newCategory)
-         //   self.saveCategory()
+            
+            
+        // self.catagoryArray.append(newCategory)
+         //self.saveCategory()
         }
         alertController.addAction(UIAlertAction(title: "Cancel", style: .destructive, handler: nil))
         alertController.addAction(alertAction)
@@ -116,27 +131,7 @@ class CategoryTableViewController: UITableViewController {
     }
     
   
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
 //    func saveCategory() {
 //        do {
 //            try context?.save()
@@ -148,23 +143,7 @@ class CategoryTableViewController: UITableViewController {
 //    }
 //
     
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+ 
 //    func loadCategories(with request:NSFetchRequest<Categories>  = Categories.fetchRequest()){
 //        do {
 //            catagoryArray = try context!.fetch(request)
@@ -176,5 +155,5 @@ class CategoryTableViewController: UITableViewController {
 //    }
     
 }
-    
+ 
 
